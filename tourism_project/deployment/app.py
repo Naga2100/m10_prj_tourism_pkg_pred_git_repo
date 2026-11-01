@@ -2,7 +2,6 @@ import os
 import streamlit as st
 import pandas as pd
 import joblib
-from sklearn.utils.multiclass import type_of_target
 
 # Load the model committed by the pipeline (sits next to this file)
 model_path = os.path.join(os.path.dirname(__file__), "tourism_package_prediction.joblib")
@@ -34,23 +33,23 @@ monthly_income = st.number_input("Monthly Income", 1000, 200000, 22000)
 
 input_data = pd.DataFrame([{
     "Age": age,
-    "Type of Contact": type_of_contact,
-    "City Tier": city_tier,
-    "Duration Of Pitch": duration_of_pitch,
+    "TypeofContact": type_of_contact,
+    "CityTier": city_tier,
+    "DurationOfPitch": duration_of_pitch,
     "Occupation": occupation,
     "Gender": gender,
-    "Number Of Person Visiting": no_of_person_visiting,
-    "Number Of Followups": no_of_followups,
-    "Product Pitched": product_pitched,
-    "Preferred Property Star": pref_prop_star,
-    "Number Of Trips": no_of_trips,
-    "Marital Status": marital_status,
+    "NumberOfPersonVisiting": no_of_person_visiting,
+    "NumberOfFollowups": no_of_followups,
+    "ProductPitched": product_pitched,
+    "PreferredPropertyStar": pref_prop_star,
+    "NumberOfTrips": no_of_trips,
+    "MaritalStatus": marital_status,
     "Passport": passport,
-    "Pitch Satisfaction Score": pitch_satisf_score,
-    "Own Car": own_car,
-    "Number Of Children Visiting": no_of_children_visiting,
+    "PitchSatisfactionScore": pitch_satisf_score,
+    "OwnCar": own_car,
+    "NumberOfChildrenVisiting": no_of_children_visiting,
     "Designation": designation,
-    "Monthly Income": monthly_income
+    "MonthlyIncome": monthly_income
 }])
 
 if st.button("Predict Purchase"):
