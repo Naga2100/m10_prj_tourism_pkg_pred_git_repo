@@ -20,26 +20,29 @@ Xtest  = pd.read_csv("Xtest.csv")
 ytrain = pd.read_csv("ytrain.csv").squeeze()
 ytest  = pd.read_csv("ytest.csv").squeeze()
 
-# One-hot encode 'Type' and scale numeric features
-numeric_features = [
-          "Age","NumberOfPersonVisiting",
-          "DurationOfPitch","NumberOfFollowups",
-          "NumberOfTrips",
-          "NumberOfChildrenVisiting",
-          "MonthlyIncome","PitchSatisfactionScore"
-                     ]
-categorical_features = [
-          "TypeofContact","CityTier","Occupation","Gender",
-          "ProductPitched",
-          "PreferredPropertyStar","MaritalStatus",
-          "Passport","OwnCar",
-          "Designation"
+# Ensure column names are mapped consistently
+for dataset in [Xtrain, Xtest]:
+    if "Type of Contact" in dataset.columns:
+        dataset.rename(columns={"Type of Contact": "TypeofContact"}, inplace=True)
 
+numeric_features = [
+    "Age", "NumberOfPersonVisiting",
+    "DurationOfPitch", "NumberOfFollowups",
+    "NumberOfTrips",
+    "NumberOfChildrenVisiting",
+    "MonthlyIncome", "PitchSatisfactionScore"
+]
+
+categorical_features = [
+    "TypeofContact", "CityTier", "Occupation", "Gender",
+    "ProductPitched",
+    "PreferredPropertyStar", "MaritalStatus",
+    "Passport", "OwnCar",
+    "Designation"
 ]
 
 # Set the class weight to handle class imbalance
 class_weight = ytrain.value_counts()[0] / ytrain.value_counts()[1]
-class_weight
 
 # Define the preprocessing steps
 preprocessor = make_column_transformer(
@@ -51,7 +54,6 @@ preprocessor = make_column_transformer(
 xgb_model = xgb.XGBClassifier(scale_pos_weight=class_weight, random_state=42)
 
 # Small grid so the pipeline runs fast on GitHub Actions.
-# Widen this if you want a more thorough hyperparameter search.
 param_grid = {
     "xgbclassifier__n_estimators": [50, 100],
     "xgbclassifier__max_depth": [2, 3],
@@ -75,10 +77,13 @@ with mlflow.start_run():
         std_score = results["std_test_score"][i]
 
         # Log each combination as a separate MLflow run
-        with mlflow.start_run(nested=True):
-            mlflow.log_params(param_set)
-            mlflow.log_metric("mean_test_score", mean_score)
-            mlflow.log_metric("std_test_score", std_score)
+        try:
+            with mlflow.start_run(nested=True):
+                mlflow.log_params(param_set)
+                mlflow.log_metric("mean_test_score", mean_score)
+                mlflow.log_metric("std_test_score", std_score)
+        except Exception as e:
+            print(f"Nested MLflow log warning: {e}")
 
     # Log best parameters separately in main run
     mlflow.log_params(grid_search.best_params_)
@@ -115,5 +120,8 @@ with mlflow.start_run():
     # it as an MLflow artifact for traceability
     model_path = "tourism_project/deployment/tourism_package_prediction.joblib"
     joblib.dump(best_model, model_path)
-    mlflow.log_artifact(model_path, artifact_path="model")
+    try:
+        mlflow.log_artifact(model_path, artifact_path="model")
+    except Exception as e:
+        print(f"MLflow artifact logging skipped: {e}")
     print(f"Model saved to {model_path}")
