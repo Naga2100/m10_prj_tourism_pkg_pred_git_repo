@@ -1,10 +1,18 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-# NOTE: 'Type' is intentionally left as raw strings (H/L/M).
-# The training pipeline one-hot-encodes it, and the Streamlit app also sends
-# raw H/L/M values. Encoding it here (e.g. LabelEncoder) would make training
-# and serving use different representations, silently breaking predictions.
+# Read the cleaned dataset
+df = pd.read_csv("tourism_project/data/tourism.csv")
+
+# Drop Unnamed: 0 and CustomerID if they exist
+if "Unnamed: 0" in df.columns:
+    df = df.drop(columns=["Unnamed: 0"])
+if "CustomerID" in df.columns:
+    df = df.drop(columns=["CustomerID"])
+
+# Clean inconsistent categories to align with notebook
+df.loc[df["Gender"] == "Fe Male", "Gender"] = "Female"
+df.loc[df["MaritalStatus"] == "Unmarried", "MaritalStatus"] = "Single"
 
 X = df.drop(columns=["ProdTaken"])
 y = df["ProdTaken"]
@@ -20,4 +28,3 @@ ytrain.to_csv("ytrain.csv", index=False)
 ytest.to_csv("ytest.csv", index=False)
 
 print("Data prepared: train/test splits written.")
-print("Type values kept as:", sorted(X["Type"].unique()))
