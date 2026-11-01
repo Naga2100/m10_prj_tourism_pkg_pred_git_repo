@@ -17,7 +17,7 @@ df.loc[df["MaritalStatus"] == "Unmarried", "MaritalStatus"] = "Single"
 X = df.drop(columns=["ProdTaken"])
 y = df["ProdTaken"]
 
-# stratify=y keeps the (imbalanced) failure ratio consistent across splits
+# stratify=y keeps the (imbalanced) prediction ratio consistent across splits
 Xtrain, Xtest, ytrain, ytest = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
