@@ -1,5 +1,6 @@
 import pandas as pd
 
+# load tourism dataset file path
 RAW_PATH = "tourism_project/data/tourism.csv"
 
 # Load the raw dataset
